@@ -1,0 +1,180 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Marketplace Orange palette
+   primary  #FF6B35 (sunset orange)
+   dark     #1B263B (deep navy)
+   cream    #FFF8F0 (background)
+   soft     #FFE8D6 (tint)
+   success  #2D8659
+   amber    #E8A33D
+*/
+:root {
+  --radius: 0.625rem;
+  --background: #fff8f0;
+  --foreground: #1b263b;
+  --card: #ffffff;
+  --card-foreground: #1b263b;
+  --popover: #ffffff;
+  --popover-foreground: #1b263b;
+  --primary: #ff6b35;
+  --primary-foreground: #ffffff;
+  --secondary: #ffe8d6;
+  --secondary-foreground: #1b263b;
+  --muted: #fff1e3;
+  --muted-foreground: #6b5947;
+  --accent: #ffe8d6;
+  --accent-foreground: #1b263b;
+  --destructive: #d64545;
+  --border: #f0e0cd;
+  --input: #f0e0cd;
+  --ring: #ff6b35;
+  --chart-1: #ff6b35;
+  --chart-2: #2d8659;
+  --chart-3: #1b263b;
+  --chart-4: #e8a33d;
+  --chart-5: #b85c2f;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1b263b;
+  --sidebar-primary: #ff6b35;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffe8d6;
+  --sidebar-accent-foreground: #1b263b;
+  --sidebar-border: #f0e0cd;
+  --sidebar-ring: #ff6b35;
+}
+
+.dark {
+  --background: #161d2e;
+  --foreground: #fff8f0;
+  --card: #1b263b;
+  --card-foreground: #fff8f0;
+  --popover: #1b263b;
+  --popover-foreground: #fff8f0;
+  --primary: #ff7a47;
+  --primary-foreground: #1b263b;
+  --secondary: #2a3650;
+  --secondary-foreground: #fff8f0;
+  --muted: #243049;
+  --muted-foreground: #c4b8a7;
+  --accent: #2a3650;
+  --accent-foreground: #fff8f0;
+  --destructive: #e85d5d;
+  --border: #2a3650;
+  --input: #2a3650;
+  --ring: #ff7a47;
+  --chart-1: #ff7a47;
+  --chart-2: #4ca77a;
+  --chart-3: #fff8f0;
+  --chart-4: #f0b85a;
+  --chart-5: #d97a52;
+  --sidebar: #1b263b;
+  --sidebar-foreground: #fff8f0;
+  --sidebar-primary: #ff7a47;
+  --sidebar-primary-foreground: #1b263b;
+  --sidebar-accent: #2a3650;
+  --sidebar-accent-foreground: #fff8f0;
+  --sidebar-border: #2a3650;
+  --sidebar-ring: #ff7a47;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Helpful utility classes */
+@layer utilities {
+  .text-navy {
+    color: #1b263b;
+  }
+  .bg-navy {
+    background-color: #1b263b;
+  }
+  .bg-orange-brand {
+    background-color: #ff6b35;
+  }
+  .text-orange-brand {
+    color: #ff6b35;
+  }
+  .bg-cream {
+    background-color: #fff8f0;
+  }
+  .bg-soft-orange {
+    background-color: #ffe8d6;
+  }
+  .bg-success {
+    background-color: #2d8659;
+  }
+  .text-success {
+    color: #2d8659;
+  }
+  .bg-amber-brand {
+    background-color: #e8a33d;
+  }
+  .text-amber-brand {
+    color: #e8a33d;
+  }
+  /* Custom scrollbar for long lists */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #ff6b35 transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #ff6b35;
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+}
