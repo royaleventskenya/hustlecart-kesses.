@@ -1,0 +1,162 @@
+// HustleCart Kesses — Prisma schema
+// Personal shopping + delivery service for Kesses constituency.
+// The operator curates a catalog of products available at local source shops,
+// shops on behalf of customers, and delivers. Cash on delivery.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  phone          String   @unique
+  name           String
+  role           String   // "shopper" | "operator"
+  referralCode   String   @unique @default(cuid())  // short code for referrals
+  referredBy     String?  // referralCode of the person who referred this user
+  loyaltyStamps  Int      @default(0)  // earned per delivered order; 10 = free delivery
+  freeDeliveryAvailable Int @default(0) // redeemed stamps → free delivery credits
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  orders         Order[]
+  reviews        Review[]
+}
+
+// SourceShop — a local shop the operator buys from. NOT a user account.
+// The operator manages these (add/edit) so they know where to source each product.
+model SourceShop {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  phone       String?   // shop's contact (for operator's reference)
+  location    String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String    @unique
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  price         Float    // KES — what the customer pays (selling price)
+  costPrice     Float?   // KES — what the operator pays the source shop (for profit tracking)
+  originalPrice Float?   // KES — for deals display (strikethrough); must be > price
+  stock         Int
+  imageUrl      String?
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  shopId        String
+  shop          SourceShop @relation(fields: [shopId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  orderItems    OrderItem[]
+  reviews       Review[]
+}
+
+// OrderStatus (stored as String since SQLite has no enum):
+//   PLACED -> ACCEPTED -> SHOPPING -> OUT_FOR_DELIVERY -> DELIVERED
+//   (or CANCELLED at any point)
+model Order {
+  id               String        @id @default(cuid())
+  customerId       String
+  customer         User          @relation(fields: [customerId], references: [id])
+  customerPhone    String        // snapshot
+  customerName     String        // snapshot
+  deliveryLocation String
+  deliveryLat      Float?      // GPS latitude (from map pin)
+  deliveryLng      Float?      // GPS longitude (from map pin)
+  paymentMethod    String        // "cod" | "mpesa"
+  paymentStatus    String        @default("UNPAID") // UNPAID | PENDING | PAID | FAILED
+  mpesaReceiptNo   String?       // M-Pesa transaction code (e.g., "SGH4X7P2H6")
+  mpesaPhone       String?       // phone that was charged (snapshot)
+  deliveryFee      Float
+  deliveryZoneName String?       // snapshot of the zone name (e.g. "Cheptiret")
+  total            Float
+  status           String        @default("PLACED")
+  deliveryPhotoUrl String?       // photo proof of delivery (operator uploads when marking DELIVERED)
+  scheduledFor     DateTime?     // nullable — when the shopper wants delivery (scheduled)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  items            OrderItem[]
+  statusEvents     StatusEvent[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String // snapshot
+  price     Float // snapshot (selling price the customer pays)
+  costPrice Float? // snapshot (what operator pays the source shop, for profit calc)
+  quantity  Int
+}
+
+model StatusEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1..5
+  title     String?
+  comment   String?
+  createdAt DateTime @default(now())
+
+  @@unique([productId, userId]) // one review per user per product
+}
+
+// CustomRequest — a free-text shopping list sent by a shopper who doesn't want
+// to browse the catalog. e.g. "Niletee bread, milk 2L, sugar 1kg, soap".
+// The operator contacts the shopper via WhatsApp to confirm availability +
+// price, then shops + delivers. Status flow:
+//   NEW -> CONTACTED -> SHOPPING -> DELIVERED  (or CANCELLED)
+model CustomRequest {
+  id           String   @id @default(cuid())
+  shopperId    String?  // null if anonymous (not logged in)
+  shopperName  String
+  shopperPhone String
+  itemsText    String   // free-text shopping list from the shopper
+  location     String
+  status       String   @default("NEW") // NEW | CONTACTED | SHOPPING | DELIVERED | CANCELLED
+  operatorNote String?  // operator's internal note (e.g. "called, confirmed 2 bread")
+  quotedTotal  Float?   // operator can set after confirming with shopper (KES, optional)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// DeliveryZone — areas the operator delivers to, each with its own fee.
+// e.g. "Kesses Market (within town)" KSh 50, "Cheptiret" KSh 120, "Tulwet" KSh 100.
+// The shopper picks their zone at checkout; the fee is auto-applied to the order.
+model DeliveryZone {
+  id          String   @id @default(cuid())
+  name        String   // e.g. "Kesses Market"
+  description String?  // e.g. "Within Kesses town — near the market"
+  fee         Float    // KES delivery fee for this zone
+  active      Boolean  @default(true) // inactive zones don't show at checkout
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
