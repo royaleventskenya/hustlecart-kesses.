@@ -5,8 +5,8 @@
 // cookie. The OTP is one-shot — it's consumed on success and can't be reused.
 //
 // Role assignment:
-//   - If the phone matches HUSTLECART_OPERATOR_PHONE env var, role = "operator".
-//   - Otherwise role = "shopper".
+//   - The pinned OPERATOR_PHONE constant below always logs in as "operator".
+//   - Everyone else is "shopper" — signup is open to any valid Kenyan number.
 // There is no "vendor" role anymore — HustleCart Kesses is a personal
 // shopping + delivery service run by a single operator.
 import { NextRequest, NextResponse } from "next/server";
@@ -14,10 +14,9 @@ import { db } from "@/lib/db";
 import { normalizePhone } from "@/lib/format";
 import { consumeOtp, hasOtp } from "@/lib/otp-store";
 
-function getOperatorPhone(): string | null {
-  const v = process.env.HUSTLECART_OPERATOR_PHONE;
-  return v ? normalizePhone(v) : null;
-}
+// Operator login is pinned in code. To change the operator, edit this
+// constant (it must be in normalized form: +254 followed by 9 digits).
+const OPERATOR_PHONE = "+254141882939";
 
 export async function POST(req: NextRequest) {
   try {
@@ -50,10 +49,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Determine role: operator phone -> operator; otherwise shopper.
-    const operatorPhone = getOperatorPhone();
+    // Determine role: pinned operator phone -> operator; everyone else shopper.
     const role: "shopper" | "operator" =
-      operatorPhone && phone === operatorPhone ? "operator" : "shopper";
+      phone === OPERATOR_PHONE ? "operator" : "shopper";
 
     const user = await db.user.upsert({
       where: { phone },

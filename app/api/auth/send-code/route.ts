@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Role is determined at verify time based on HUSTLECART_OPERATOR_PHONE.
+    // Role is determined at verify time by the pinned OPERATOR_PHONE in verify/route.ts.
     // For OTP storage we use "shopper" as a placeholder; verify will overwrite
     // it with "operator" if the phone matches.
     const role: "shopper" | "operator" = "shopper";

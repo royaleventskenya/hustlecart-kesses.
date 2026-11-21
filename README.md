@@ -73,7 +73,7 @@ npm install
 
 # Copy environment file
 cp .env.example .env
-# Edit .env — set HUSTLECART_OPERATOR_PHONE to your phone number
+# Operator phone is pinned in code — see app/api/auth/verify/route.ts (OPERATOR_PHONE)
 
 # Set up the database
 npx prisma db push
@@ -90,7 +90,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Setting up the operator account
 
-1. Set `HUSTLECART_OPERATOR_PHONE` in `.env` to your phone number (e.g., `0797859232`)
+1. The operator phone is pinned in `app/api/auth/verify/route.ts` (OPERATOR_PHONE constant — currently `+254141882939`)
 2. Sign up with that phone number → you'll be auto-promoted to the operator role
 3. Add source shops, products, and delivery zones via the dashboard
 
@@ -169,7 +169,6 @@ git push -u origin main
 2. Import your GitHub repo
 3. **Set Environment Variables** in the Vercel dashboard:
    - `DATABASE_URL` — your PostgreSQL connection string
-   - `HUSTLECART_OPERATOR_PHONE` — your phone number
    - `AFRICASTALKING_USERNAME` — (optional) for real SMS
    - `AFRICASTALKING_API_KEY` — (optional) for real SMS
    - `AFRICASTALKING_SENDER_ID` — (optional) for real SMS
@@ -198,7 +197,6 @@ On Vercel, uploaded images (product images, delivery photos) won't persist betwe
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | Database connection string (SQLite for dev, PostgreSQL for prod) |
-| `HUSTLECART_OPERATOR_PHONE` | Yes | Phone number that gets operator role at signup |
 | `AFRICASTALKING_USERNAME` | No | Africa's Talking username (sandbox or production) |
 | `AFRICASTALKING_API_KEY` | No | Africa's Talking API key |
 | `AFRICASTALKING_SENDER_ID` | No | SMS sender ID |
